@@ -10,6 +10,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,11 +25,13 @@ class MainActivity : AppCompatActivity() {
     private var isSaloRound = false
     private var gameOver = false
 
-    // Scores for numbers (1-6)
-    private var numberScores = mutableMapOf(1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null)
+    // Scores for numbers (1-6) - using Int? (nullable)
+    private var numberScores = mutableMapOf<Int, Int?>(
+        1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null
+    )
 
     // Scores for combinations
-    private var combinationScores = mutableMapOf(
+    private var combinationScores = mutableMapOf<String, Int?>(
         "pair" to null,
         "twoPairs" to null,
         "threeTwo" to null,
@@ -211,6 +214,7 @@ class MainActivity : AppCompatActivity() {
         numbersContainer.removeAllViews()
         combinationsContainer.removeAllViews()
 
+        // Numbers section
         for (num in 1..6) {
             val item = layoutInflater.inflate(R.layout.item_score, numbersContainer, false)
             val card = item.findViewById<CardView>(R.id.cardScore)
@@ -227,24 +231,29 @@ class MainActivity : AppCompatActivity() {
                 else -> " (шестёрки)"
             }}"
 
+            val scoreValue = numberScores[num]
             when {
-                numberScores[num] != null -> {
-                    val score = numberScores[num]!!
-                    value.text = if (score >= 0) "+$score" else "$score"
-                    value.setTextColor(if (score >= 0) getColor(R.color.accent_green) else getColor(R.color.accent_red))
-                    card.setCardBackgroundColor(getColor(if (score >= 0) R.color.bg_score_filled else R.color.bg_score_cross))
+                scoreValue != null -> {
+                    value.text = if (scoreValue >= 0) "+$scoreValue" else "$scoreValue"
+                    if (scoreValue >= 0) {
+                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
+                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_filled))
+                    } else {
+                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
+                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_cross))
+                    }
                     action.visibility = View.GONE
                 }
                 rollCount > 0 && !gameOver && isPhase1 -> {
                     val possibleScore = calculateNumberScore(num)
                     value.text = possibleScore.toString()
-                    value.setTextColor(getColor(R.color.accent_gold))
+                    value.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
                     action.visibility = View.VISIBLE
                     card.setOnClickListener { recordNumberScore(num, possibleScore) }
                 }
                 else -> {
                     value.text = "-"
-                    value.setTextColor(getColor(R.color.text_secondary))
+                    value.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
                     action.visibility = View.GONE
                 }
             }
@@ -252,6 +261,7 @@ class MainActivity : AppCompatActivity() {
             numbersContainer.addView(item)
         }
 
+        // Combinations section
         val combos = listOf(
             "pair" to "Пара (+10 + сумма)",
             "twoPairs" to "Две пары (+20 + сумма)",
@@ -271,26 +281,35 @@ class MainActivity : AppCompatActivity() {
 
             name.text = label
 
+            val scoreValue = combinationScores[key]
             when {
-                combinationScores[key] != null -> {
-                    val score = combinationScores[key]!!
-                    value.text = if (score >= 0) "+$score" else "$score"
-                    value.setTextColor(if (score >= 0) getColor(R.color.accent_green) else getColor(R.color.accent_red))
-                    card.setCardBackgroundColor(getColor(if (score >= 0) R.color.bg_score_filled else R.color.bg_score_cross))
+                scoreValue != null -> {
+                    value.text = if (scoreValue >= 0) "+$scoreValue" else "$scoreValue"
+                    if (scoreValue >= 0) {
+                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
+                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_filled))
+                    } else {
+                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
+                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_cross))
+                    }
                     action.visibility = View.GONE
                 }
                 rollCount > 0 && !gameOver && !isPhase1 -> {
                     val possibleScore = calculateCombinationScore(key)
-                    value.text = if (possibleScore != null) "+$possibleScore" else "0"
-                    value.setTextColor(if (possibleScore != null && possibleScore > 0) getColor(R.color.accent_gold) else getColor(R.color.text_secondary))
-                    action.visibility = if (possibleScore != null) View.VISIBLE else View.GONE
                     if (possibleScore != null) {
+                        value.text = "+$possibleScore"
+                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
+                        action.visibility = View.VISIBLE
                         card.setOnClickListener { recordCombinationScore(key, possibleScore) }
+                    } else {
+                        value.text = "0"
+                        value.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+                        action.visibility = View.GONE
                     }
                 }
                 else -> {
                     value.text = "-"
-                    value.setTextColor(getColor(R.color.text_secondary))
+                    value.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
                     action.visibility = View.GONE
                 }
             }
@@ -330,7 +349,7 @@ class MainActivity : AppCompatActivity() {
                 val hasThree = counts.any { it.value >= 3 }
                 val hasTwo = counts.any { it.value >= 2 }
                 if (hasThree && hasTwo && counts.size == 2) {
-                    30 + diceValues.sum()
+                    30 + diceValues.fold(0) { acc, v -> acc + v }
                 } else null
             }
             "smallStraight" -> {
@@ -394,7 +413,7 @@ class MainActivity : AppCompatActivity() {
                         val card = item.findViewById<CardView>(R.id.cardScore)
                         val action = item.findViewById<TextView>(R.id.tvScoreAction)
                         action.text = "ЗАЧЁРКНУТЬ (-$num)"
-                        action.setTextColor(getColor(R.color.accent_red))
+                        action.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
                         action.visibility = View.VISIBLE
                         card.setOnClickListener {
                             numberScores[num] = -num
@@ -419,7 +438,7 @@ class MainActivity : AppCompatActivity() {
                         val action = item.findViewById<TextView>(R.id.tvScoreAction)
                         val penalty = comboNames[key] ?: 10
                         action.text = "ЗАЧЁРКНУТЬ (-$penalty)"
-                        action.setTextColor(getColor(R.color.accent_red))
+                        action.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
                         action.visibility = View.VISIBLE
                         card.setOnClickListener {
                             combinationScores[key] = -penalty
@@ -442,7 +461,7 @@ class MainActivity : AppCompatActivity() {
         val phase2Complete = combinationScores.values.all { it != null }
 
         if (phase1Complete && isPhase1) {
-            val numbersSum = numberScores.values.filterNotNull().sum()
+            val numbersSum = numberScores.values.filterNotNull().fold(0) { acc, v -> acc + v }
             if (numbersSum > 0) {
                 totalScore += 100
                 Toast.makeText(this, "🎉 Бонус +100 за положительный счёт цифр!", Toast.LENGTH_LONG).show()
@@ -500,16 +519,17 @@ class MainActivity : AppCompatActivity() {
     private fun calculateSaloScore(): Int {
         val sorted = diceValues.sorted()
         val counts = diceValues.groupBy { it }.mapValues { it.value.size }
+        val diceSum = diceValues.fold(0) { acc, value -> acc + value }
 
         return when {
-            counts.any { it.value == 5 } -> 100 + diceValues.sum()
-            counts.any { it.value >= 4 } -> 80 + diceValues.sum()
-            sorted.toSet() == setOf(2, 3, 4, 5, 6) -> 60 + diceValues.sum()
-            sorted.toSet() == setOf(1, 2, 3, 4, 5) -> 40 + diceValues.sum()
-            counts.filter { it.value >= 2 }.size >= 2 -> 20 + diceValues.sum()
-            counts.any { it.value >= 3 } && counts.any { it.value >= 2 } -> 30 + diceValues.sum()
-            counts.any { it.value >= 2 } -> 10 + diceValues.sum()
-            else -> diceValues.sum()
+            counts.any { it.value == 5 } -> 100 + diceSum
+            counts.any { it.value >= 4 } -> 80 + diceSum
+            sorted.toSet() == setOf(2, 3, 4, 5, 6) -> 60 + diceSum
+            sorted.toSet() == setOf(1, 2, 3, 4, 5) -> 40 + diceSum
+            counts.filter { it.value >= 2 }.size >= 2 -> 20 + diceSum
+            counts.any { it.value >= 3 } && counts.any { it.value >= 2 } -> 30 + diceSum
+            counts.any { it.value >= 2 } -> 10 + diceSum
+            else -> diceSum
         }
     }
 
@@ -524,7 +544,9 @@ class MainActivity : AppCompatActivity() {
         isSaloRound = false
         gameOver = false
 
-        numberScores = mutableMapOf(1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null)
+        numberScores = mutableMapOf(
+            1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null
+        )
         combinationScores = mutableMapOf(
             "pair" to null, "twoPairs" to null, "threeTwo" to null,
             "smallStraight" to null, "bigStraight" to null,
