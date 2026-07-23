@@ -304,8 +304,8 @@ class MainActivity : AppCompatActivity() {
                 rollCount > 0 && !gameOver && !isPhase1 -> {
                     val possibleScore = calculateCombinationScore(key)
                     value.text = if (possibleScore != null) "+$possibleScore" else "0"
-                    value.setTextColor(if (possibleScore != null && possibleScore > 0) goldColor else grayColor)
-                    action.visibility = if (possibleScore != null && possibleScore > 0) goldColor else grayColor)
+                    val textColor = if (possibleScore != null && possibleScore > 0) goldColor else grayColor
+                    value.setTextColor(textColor)
                     action.visibility = if (possibleScore != null) View.VISIBLE else View.GONE
                     action.text = "ЗАПИСАТЬ"
                     if (possibleScore != null) {
