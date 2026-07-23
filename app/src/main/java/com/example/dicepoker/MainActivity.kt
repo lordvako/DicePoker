@@ -1,6 +1,7 @@
 package com.example.dicepoker
 
 import android.animation.ObjectAnimator
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,7 +15,6 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
-    // Game State
     private var diceValues = intArrayOf(1, 1, 1, 1, 1)
     private var diceLocked = booleanArrayOf(false, false, false, false, false)
     private var diceSelected = booleanArrayOf(false, false, false, false, false)
@@ -25,11 +25,9 @@ class MainActivity : AppCompatActivity() {
     private var isSaloRound = false
     private var gameOver = false
 
-    // Scores for numbers (1-6) — Int? where null = not set, >=0 = filled, -1 = crossed
-    private var numberScores = mutableMapOf(1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null)
+    private var numberScores = mutableMapOf<Int, Int?>(1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null)
 
-    // Scores for combinations — same logic
-    private var combinationScores = mutableMapOf(
+    private var combinationScores = mutableMapOf<String, Int?>(
         "pair" to null,
         "twoPairs" to null,
         "threeTwo" to null,
@@ -39,7 +37,6 @@ class MainActivity : AppCompatActivity() {
         "poker" to null
     )
 
-    // UI Elements
     private lateinit var diceFrames: Array<FrameLayout>
     private lateinit var diceImages: Array<ImageView>
     private lateinit var btnRoll: Button
@@ -65,7 +62,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         initViews()
         setupDiceClickListeners()
         setupRollButton()
@@ -75,18 +71,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViews() {
         diceFrames = arrayOf(
-            findViewById(R.id.dice1),
-            findViewById(R.id.dice2),
-            findViewById(R.id.dice3),
-            findViewById(R.id.dice4),
-            findViewById(R.id.dice5)
+            findViewById(R.id.dice1), findViewById(R.id.dice2),
+            findViewById(R.id.dice3), findViewById(R.id.dice4), findViewById(R.id.dice5)
         )
         diceImages = arrayOf(
-            findViewById(R.id.ivDice1),
-            findViewById(R.id.ivDice2),
-            findViewById(R.id.ivDice3),
-            findViewById(R.id.ivDice4),
-            findViewById(R.id.ivDice5)
+            findViewById(R.id.ivDice1), findViewById(R.id.ivDice2),
+            findViewById(R.id.ivDice3), findViewById(R.id.ivDice4), findViewById(R.id.ivDice5)
         )
         btnRoll = findViewById(R.id.btnRoll)
         btnRestart = findViewById(R.id.btnRestart)
@@ -98,7 +88,6 @@ class MainActivity : AppCompatActivity() {
         numbersContainer = findViewById(R.id.numbersContainer)
         combinationsContainer = findViewById(R.id.combinationsContainer)
         btnNewGame = findViewById(R.id.btnNewGame)
-
         btnNewGame.setOnClickListener { startNewGame() }
     }
 
@@ -106,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         btnRestart.setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle("Новая игра")
-                .setMessage("Точно хотите начать заново? Текущий прогресс будет потерян.")
+                .setMessage("Точно хотите начать заново?")
                 .setPositiveButton("Да") { _, _ -> startNewGame() }
                 .setNegativeButton("Отмена", null)
                 .show()
@@ -117,11 +106,9 @@ class MainActivity : AppCompatActivity() {
         for (i in 0..4) {
             diceFrames[i].setOnClickListener {
                 if (rollCount == 0 || gameOver || isSaloRound) return@setOnClickListener
-
                 if (!diceLocked[i]) {
                     diceSelected[i] = !diceSelected[i]
                     updateDiceVisuals()
-
                     val status = if (diceSelected[i]) "сохранён" else "будет переброшен"
                     tvMessage.text = "Кубик ${diceValues[i]} $status"
                 }
@@ -132,48 +119,27 @@ class MainActivity : AppCompatActivity() {
     private fun setupRollButton() {
         btnRoll.setOnClickListener {
             if (gameOver) return@setOnClickListener
-
-            if (isSaloRound) {
-                rollSalo()
-                return@setOnClickListener
-            }
-
-            if (rollCount >= 3) {
-                tvMessage.text = "Выбери, что записать!"
-                return@setOnClickListener
-            }
-
+            if (isSaloRound) { rollSalo(); return@setOnClickListener }
+            if (rollCount >= 3) { tvMessage.text = "Выбери, что записать!"; return@setOnClickListener }
             rollDice()
         }
     }
 
     private fun rollDice() {
         rollCount++
-
         for (i in 0..4) {
-            if (!diceSelected[i] && !diceLocked[i]) {
-                animateDiceRoll(i)
-            }
+            if (!diceSelected[i] && !diceLocked[i]) animateDiceRoll(i)
         }
-
         Handler(Looper.getMainLooper()).postDelayed({
             for (i in 0..4) {
-                if (!diceSelected[i] && !diceLocked[i]) {
-                    diceValues[i] = (1..6).random()
-                }
+                if (!diceSelected[i] && !diceLocked[i]) diceValues[i] = (1..6).random()
             }
-
             for (i in 0..4) {
-                if (diceSelected[i]) {
-                    diceLocked[i] = true
-                    diceSelected[i] = false
-                }
+                if (diceSelected[i]) { diceLocked[i] = true; diceSelected[i] = false }
             }
-
             updateDiceVisuals()
             updateUI()
             checkAvailableScores()
-
             if (rollCount >= 3) {
                 tvMessage.text = "Выбери категорию для записи очков!"
                 btnRoll.isEnabled = false
@@ -186,40 +152,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun rollSalo() {
         rollCount++
-
-        for (i in 0..4) {
-            animateDiceRoll(i)
-        }
-
+        for (i in 0..4) animateDiceRoll(i)
         Handler(Looper.getMainLooper()).postDelayed({
-            for (i in 0..4) {
-                diceValues[i] = (1..6).random()
-            }
-
+            for (i in 0..4) diceValues[i] = (1..6).random()
             updateDiceVisuals()
             updateUI()
-
             val saloResult = calculateSaloDetailed()
             val saloScore = saloResult.first
             val comboName = saloResult.second
-
             totalScore += saloScore
-
-            // Show SALO result dialog
             AlertDialog.Builder(this)
                 .setTitle("САЛО!")
                 .setMessage("Выпало: ${diceValues.joinToString(", ")}\n\nКомбинация: $comboName\nОчки за Сало: +$saloScore")
-                .setPositiveButton("Отлично!") { _, _ ->
-                    showEndGameDialog()
-                }
+                .setPositiveButton("Отлично!") { _, _ -> showEndGameDialog() }
                 .setCancelable(false)
                 .show()
-
             btnRoll.isEnabled = false
             btnRoll.alpha = 0.5f
             gameOver = true
             btnNewGame.visibility = View.VISIBLE
-
         }, 600)
     }
 
@@ -228,42 +179,28 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Игра окончена!")
             .setMessage("Ваш финальный счёт: $totalScore\n\nХотите сыграть ещё раз?")
             .setPositiveButton("Да, ещё раз!") { _, _ -> startNewGame() }
-            .setNegativeButton("Выйти") { _, _ ->
-                finish()
-            }
+            .setNegativeButton("Выйти") { _, _ -> finish() }
             .setCancelable(false)
             .show()
     }
 
     private fun animateDiceRoll(index: Int) {
         val frame = diceFrames[index]
-        val animatorX = ObjectAnimator.ofFloat(frame, "rotationX", 0f, 360f)
-        val animatorY = ObjectAnimator.ofFloat(frame, "rotationY", 0f, 360f)
-        animatorX.duration = 500
-        animatorY.duration = 500
-        animatorX.interpolator = BounceInterpolator()
-        animatorY.interpolator = BounceInterpolator()
-        animatorX.start()
-        animatorY.start()
+        ObjectAnimator.ofFloat(frame, "rotationX", 0f, 360f).apply {
+            duration = 500; interpolator = BounceInterpolator(); start()
+        }
+        ObjectAnimator.ofFloat(frame, "rotationY", 0f, 360f).apply {
+            duration = 500; interpolator = BounceInterpolator(); start()
+        }
     }
 
     private fun updateDiceVisuals() {
         for (i in 0..4) {
             diceImages[i].setImageResource(diceDrawables[diceValues[i]] ?: R.drawable.dice_1)
-
             when {
-                diceLocked[i] -> {
-                    diceFrames[i].setBackgroundResource(R.drawable.bg_dice_locked)
-                    diceFrames[i].alpha = 0.7f
-                }
-                diceSelected[i] -> {
-                    diceFrames[i].setBackgroundResource(R.drawable.bg_dice_selected)
-                    diceFrames[i].alpha = 1.0f
-                }
-                else -> {
-                    diceFrames[i].setBackgroundResource(R.drawable.bg_dice)
-                    diceFrames[i].alpha = 1.0f
-                }
+                diceLocked[i] -> { diceFrames[i].setBackgroundResource(R.drawable.bg_dice_locked); diceFrames[i].alpha = 0.7f }
+                diceSelected[i] -> { diceFrames[i].setBackgroundResource(R.drawable.bg_dice_selected); diceFrames[i].alpha = 1.0f }
+                else -> { diceFrames[i].setBackgroundResource(R.drawable.bg_dice); diceFrames[i].alpha = 1.0f }
             }
         }
     }
@@ -272,13 +209,11 @@ class MainActivity : AppCompatActivity() {
         tvRound.text = "Раунд: $round/13"
         tvRollCount.text = "Бросок: $rollCount/3"
         tvTotalScore.text = "Очки: $totalScore"
-
         tvPhase.text = when {
             isSaloRound -> "САЛО - Финальный бросок!"
             isPhase1 -> "Фаза 1: Собери цифры"
             else -> "Фаза 2: Собери комбинации"
         }
-
         renderScoreTable()
     }
 
@@ -286,7 +221,13 @@ class MainActivity : AppCompatActivity() {
         numbersContainer.removeAllViews()
         combinationsContainer.removeAllViews()
 
-        // Numbers section
+        val greenColor = ContextCompat.getColor(this, R.color.accent_green)
+        val redColor = ContextCompat.getColor(this, R.color.accent_red)
+        val goldColor = ContextCompat.getColor(this, R.color.accent_gold)
+        val grayColor = ContextCompat.getColor(this, R.color.text_secondary)
+        val crossBg = Color.parseColor("#3A1B1B")
+        val filledBg = Color.parseColor("#1B3A2F")
+
         for (num in 1..6) {
             val item = layoutInflater.inflate(R.layout.item_score, numbersContainer, false)
             val card = item.findViewById<CardView>(R.id.cardScore)
@@ -294,49 +235,39 @@ class MainActivity : AppCompatActivity() {
             val value = item.findViewById<TextView>(R.id.tvScoreValue)
             val action = item.findViewById<TextView>(R.id.tvScoreAction)
 
-            name.text = "$num${when(num) {
-                1 -> " (единицы)"
-                2 -> " (двойки)"
-                3 -> " (тройки)"
-                4 -> " (четвёрки)"
-                5 -> " (пятёрки)"
-                else -> " (шестёрки)"
-            }}"
+            name.text = "$num${when(num) { 1->" (единицы)"; 2->" (двойки)"; 3->" (тройки)"; 4->" (четвёрки)"; 5->" (пятёрки)"; else->" (шестёрки)" }}"
 
+            val currentScore = numberScores[num]
             when {
-                numberScores[num] != null -> {
-                    val score = numberScores[num]!!
-                    if (score == -1) {
-                        // Crossed out
+                currentScore != null -> {
+                    if (currentScore == -1) {
                         value.text = "✕"
-                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
-                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_cross))
+                        value.setTextColor(redColor)
+                        card.setCardBackgroundColor(crossBg)
                     } else {
-                        value.text = "+$score"
-                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
-                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_filled))
+                        value.text = "+$currentScore"
+                        value.setTextColor(greenColor)
+                        card.setCardBackgroundColor(filledBg)
                     }
                     action.visibility = View.GONE
                 }
                 rollCount > 0 && !gameOver && isPhase1 -> {
                     val possibleScore = calculateNumberScore(num)
                     value.text = if (possibleScore >= 0) "+$possibleScore" else "-$num"
-                    value.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
+                    value.setTextColor(goldColor)
                     action.visibility = View.VISIBLE
                     action.text = "ЗАПИСАТЬ"
                     card.setOnClickListener { recordNumberScore(num, possibleScore) }
                 }
                 else -> {
                     value.text = "-"
-                    value.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+                    value.setTextColor(grayColor)
                     action.visibility = View.GONE
                 }
             }
-
             numbersContainer.addView(item)
         }
 
-        // Combinations section
         val combos = listOf(
             "pair" to "Пара (+10 + сумма)",
             "twoPairs" to "Две пары (+20 + сумма)",
@@ -355,28 +286,26 @@ class MainActivity : AppCompatActivity() {
             val action = item.findViewById<TextView>(R.id.tvScoreAction)
 
             name.text = label
+            val currentScore = combinationScores[key]
 
             when {
-                combinationScores[key] != null -> {
-                    val score = combinationScores[key]!!
-                    if (score == -1) {
-                        // Crossed out - just X, no penalty
+                currentScore != null -> {
+                    if (currentScore == -1) {
                         value.text = "✕"
-                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
-                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_cross))
+                        value.setTextColor(redColor)
+                        card.setCardBackgroundColor(crossBg)
                     } else {
-                        value.text = "+$score"
-                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
-                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_filled))
+                        value.text = "+$currentScore"
+                        value.setTextColor(greenColor)
+                        card.setCardBackgroundColor(filledBg)
                     }
                     action.visibility = View.GONE
                 }
                 rollCount > 0 && !gameOver && !isPhase1 -> {
                     val possibleScore = calculateCombinationScore(key)
                     value.text = if (possibleScore != null) "+$possibleScore" else "0"
-                    value.setTextColor(if (possibleScore != null && possibleScore > 0) 
-                        ContextCompat.getColor(this, R.color.accent_gold) 
-                        else ContextCompat.getColor(this, R.color.text_secondary))
+                    value.setTextColor(if (possibleScore != null && possibleScore > 0) goldColor else grayColor)
+                    action.visibility = if (possibleScore != null && possibleScore > 0) goldColor else grayColor)
                     action.visibility = if (possibleScore != null) View.VISIBLE else View.GONE
                     action.text = "ЗАПИСАТЬ"
                     if (possibleScore != null) {
@@ -385,55 +314,45 @@ class MainActivity : AppCompatActivity() {
                 }
                 else -> {
                     value.text = "-"
-                    value.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+                    value.setTextColor(grayColor)
                     action.visibility = View.GONE
                 }
             }
-
             combinationsContainer.addView(item)
         }
     }
 
     private fun calculateNumberScore(number: Int): Int {
         val count = diceValues.count { it == number }
-        return if (count >= 3) {
-            count * number
-        } else {
-            -number
-        }
+        return if (count >= 3) count * number else -number
     }
 
     private fun calculateCombinationScore(key: String): Int? {
-        val sorted = diceValues.sorted()
+        val sorted = diceValues.toList().sorted()
         val counts = diceValues.groupBy { it }.mapValues { it.value.size }
 
         return when (key) {
             "pair" -> {
                 val pairs = counts.filter { it.value >= 2 }
                 if (pairs.isNotEmpty()) {
-                    val pairValue = pairs.keys.maxOrNull() ?: 0
-                    10 + pairValue * 2
+                    val maxPair = pairs.keys.max()
+                    10 + maxPair * 2
                 } else null
             }
             "twoPairs" -> {
-                val pairs = counts.filter { it.value >= 2 }.keys.sortedDescending()
-                if (pairs.size >= 2) {
-                    20 + pairs[0] * 2 + pairs[1] * 2
+                val pairKeys = counts.filter { it.value >= 2 }.keys.toList()
+                if (pairKeys.size >= 2) {
+                    val sortedPairs = pairKeys.sortedDescending()
+                    20 + sortedPairs[0] * 2 + sortedPairs[1] * 2
                 } else null
             }
             "threeTwo" -> {
                 val hasThree = counts.any { it.value >= 3 }
                 val hasTwo = counts.any { it.value >= 2 }
-                if (hasThree && hasTwo && counts.size == 2) {
-                    30 + diceValues.sum()
-                } else null
+                if (hasThree && hasTwo && counts.size == 2) 30 + diceValues.sum() else null
             }
-            "smallStraight" -> {
-                if (sorted.toSet() == setOf(1, 2, 3, 4, 5)) 40 else null
-            }
-            "bigStraight" -> {
-                if (sorted.toSet() == setOf(2, 3, 4, 5, 6)) 60 else null
-            }
+            "smallStraight" -> if (sorted.toSet() == setOf(1, 2, 3, 4, 5)) 40 else null
+            "bigStraight" -> if (sorted.toSet() == setOf(2, 3, 4, 5, 6)) 60 else null
             "fourOfAKind" -> {
                 val four = counts.entries.find { it.value >= 4 }
                 if (four != null) {
@@ -443,8 +362,8 @@ class MainActivity : AppCompatActivity() {
             }
             "poker" -> {
                 if (counts.any { it.value == 5 }) {
-                    val value = diceValues[0]
-                    val base = 100 + value * 5
+                    val v = diceValues[0]
+                    val base = 100 + v * 5
                     if (rollCount == 1) base * 2 else base
                 } else null
             }
@@ -454,7 +373,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun recordNumberScore(number: Int, score: Int) {
         if (score < 0) {
-            // Cross out - just mark as crossed, no penalty to totalScore
             numberScores[number] = -1
         } else {
             numberScores[number] = score
@@ -476,7 +394,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 combinationScores.keys.any { combinationScores[it] == null }
             }
-
             if (!hasAvailable) {
                 tvMessage.text = "Нет доступных категорий!"
             } else {
@@ -486,6 +403,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun enableCrossOutMode() {
+        val redColor = ContextCompat.getColor(this, R.color.accent_red)
         if (isPhase1) {
             for (num in 1..6) {
                 if (numberScores[num] == null) {
@@ -495,10 +413,10 @@ class MainActivity : AppCompatActivity() {
                         val card = item.findViewById<CardView>(R.id.cardScore)
                         val action = item.findViewById<TextView>(R.id.tvScoreAction)
                         action.text = "ЗАЧЁРКНУТЬ"
-                        action.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
+                        action.setTextColor(redColor)
                         action.visibility = View.VISIBLE
                         card.setOnClickListener {
-                            numberScores[num] = -1  // Just cross, no penalty
+                            numberScores[num] = -1
                             nextRound()
                         }
                     }
@@ -514,10 +432,10 @@ class MainActivity : AppCompatActivity() {
                         val card = item.findViewById<CardView>(R.id.cardScore)
                         val action = item.findViewById<TextView>(R.id.tvScoreAction)
                         action.text = "ЗАЧЁРКНУТЬ"
-                        action.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
+                        action.setTextColor(redColor)
                         action.visibility = View.VISIBLE
                         card.setOnClickListener {
-                            combinationScores[key] = -1  // Just cross, no penalty
+                            combinationScores[key] = -1
                             nextRound()
                         }
                     }
@@ -527,15 +445,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun nextRound() {
-        if (isSaloRound) {
-            return
-        }
+        if (isSaloRound) return
 
         val phase1Complete = numberScores.values.all { it != null }
         val phase2Complete = combinationScores.values.all { it != null }
 
         if (phase1Complete && isPhase1) {
-            val numbersSum = numberScores.values.filterNotNull().filter { it > 0 }.fold(0) { a, b -> a + b }
+            val numbersSum = numberScores.values.filterNotNull().filter { it > 0 }.sum()
             if (numbersSum > 0) {
                 totalScore += 100
                 Toast.makeText(this, "Бонус +100 за положительный счёт цифр!", Toast.LENGTH_LONG).show()
@@ -555,24 +471,17 @@ class MainActivity : AppCompatActivity() {
         diceSelected.fill(false)
         diceValues.fill(1)
         updateDiceVisuals()
-
         btnRoll.isEnabled = true
         btnRoll.alpha = 1.0f
         btnRoll.text = if (isSaloRound) "БРОСИТЬ САЛО!" else "БРОСИТЬ КУБИКИ"
-
-        if (isSaloRound) {
-            tvMessage.text = "Финальный бросок! Любая комбинация = очки!"
-        } else {
-            tvMessage.text = "Новый раунд! Бросай кубики!"
-        }
-
+        tvMessage.text = if (isSaloRound) "Финальный бросок! Любая комбинация = очки!" else "Новый раунд! Бросай кубики!"
         updateUI()
     }
 
     private fun calculateSaloDetailed(): Pair<Int, String> {
-        val sorted = diceValues.sorted()
+        val sorted = diceValues.toList().sorted()
         val counts = diceValues.groupBy { it }.mapValues { it.value.size }
-        val diceSum = diceValues.fold(0) { a, b -> a + b }
+        val diceSum = diceValues.sum()
 
         return when {
             counts.any { it.value == 5 } -> Pair(100 + diceSum, "ПОКЕР!")
@@ -596,22 +505,18 @@ class MainActivity : AppCompatActivity() {
         isPhase1 = true
         isSaloRound = false
         gameOver = false
-
         numberScores = mutableMapOf(1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null)
         combinationScores = mutableMapOf(
             "pair" to null, "twoPairs" to null, "threeTwo" to null,
             "smallStraight" to null, "bigStraight" to null,
             "fourOfAKind" to null, "poker" to null
         )
-
         btnRoll.isEnabled = true
         btnRoll.alpha = 1.0f
         btnRoll.text = "БРОСИТЬ КУБИКИ"
         btnNewGame.visibility = View.GONE
-
         updateDiceVisuals()
         updateUI()
-
         tvMessage.text = "Новая игра! Нажми БРОСИТЬ КУБИКИ!"
     }
 }
