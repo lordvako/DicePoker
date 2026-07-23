@@ -237,10 +237,10 @@ class MainActivity : AppCompatActivity() {
                     value.text = if (scoreValue >= 0) "+$scoreValue" else "$scoreValue"
                     if (scoreValue >= 0) {
                         value.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
-                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_filled))
+                        card.setBackgroundResource(R.drawable.bg_score_filled)
                     } else {
                         value.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
-                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_cross))
+                        card.setBackgroundResource(R.drawable.bg_score_cross)
                     }
                     action.visibility = View.GONE
                 }
@@ -287,10 +287,10 @@ class MainActivity : AppCompatActivity() {
                     value.text = if (scoreValue >= 0) "+$scoreValue" else "$scoreValue"
                     if (scoreValue >= 0) {
                         value.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
-                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_filled))
+                        card.setBackgroundResource(R.drawable.bg_score_filled)
                     } else {
                         value.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
-                        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_score_cross))
+                        card.setBackgroundResource(R.drawable.bg_score_cross)
                     }
                     action.visibility = View.GONE
                 }
