@@ -1,5 +1,6 @@
 package com.example.dicepoker
 
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.os.Handler
@@ -25,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     private var isSaloRound = false
     private var gameOver = false
 
-    // Scores for numbers (1-6) - using Int? (nullable)
+    // Scores for numbers (1-6)
     private var numberScores = mutableMapOf<Int, Int?>(
         1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null
     )
@@ -133,9 +134,10 @@ class MainActivity : AppCompatActivity() {
     private fun rollDice() {
         rollCount++
 
+        // 3D анимация для всех кубиков
         for (i in 0..4) {
             if (!diceSelected[i] && !diceLocked[i]) {
-                animateDiceRoll(i)
+                animateDiceRoll3D(i)
             }
         }
 
@@ -164,15 +166,23 @@ class MainActivity : AppCompatActivity() {
             } else {
                 tvMessage.text = "Бросок $rollCount/3. Выбери кубики для сохранения."
             }
-        }, 600)
+        }, 800)
     }
 
-    private fun animateDiceRoll(index: Int) {
+    private fun animateDiceRoll3D(index: Int) {
         val frame = diceFrames[index]
-        val animator = ObjectAnimator.ofFloat(frame, "rotationY", 0f, 360f)
-        animator.duration = 500
-        animator.interpolator = BounceInterpolator()
-        animator.start()
+
+        // Комплексная 3D анимация
+        val rotateX = ObjectAnimator.ofFloat(frame, "rotationX", 0f, 360f)
+        val rotateY = ObjectAnimator.ofFloat(frame, "rotationY", 0f, 720f)
+        val scaleX = ObjectAnimator.ofFloat(frame, "scaleX", 1f, 1.3f, 1f)
+        val scaleY = ObjectAnimator.ofFloat(frame, "scaleY", 1f, 1.3f, 1f)
+
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(rotateX, rotateY, scaleX, scaleY)
+        animatorSet.duration = 700
+        animatorSet.interpolator = BounceInterpolator()
+        animatorSet.start()
     }
 
     private fun updateDiceVisuals() {
@@ -182,7 +192,7 @@ class MainActivity : AppCompatActivity() {
             when {
                 diceLocked[i] -> {
                     diceFrames[i].setBackgroundResource(R.drawable.bg_dice_locked)
-                    diceFrames[i].alpha = 0.7f
+                    diceFrames[i].alpha = 0.8f
                 }
                 diceSelected[i] -> {
                     diceFrames[i].setBackgroundResource(R.drawable.bg_dice_selected)
@@ -203,7 +213,7 @@ class MainActivity : AppCompatActivity() {
 
         tvPhase.text = when {
             isSaloRound -> "🥓 САЛО - Финальный бросок!"
-            isPhase1 -> "🔢 Фаза 1: Собери цифры"
+            isPhase1 -> "🔢 Фаза 1: Собери цифры (ход $round/6)"
             else -> "🃏 Фаза 2: Собери комбинации"
         }
 
@@ -246,10 +256,18 @@ class MainActivity : AppCompatActivity() {
                 }
                 rollCount > 0 && !gameOver && isPhase1 -> {
                     val possibleScore = calculateNumberScore(num)
-                    value.text = possibleScore.toString()
-                    value.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
-                    action.visibility = View.VISIBLE
-                    card.setOnClickListener { recordNumberScore(num, possibleScore) }
+                    val canRecord = canRecordNumber(num)
+
+                    if (canRecord) {
+                        value.text = possibleScore.toString()
+                        value.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
+                        action.visibility = View.VISIBLE
+                        card.setOnClickListener { recordNumberScore(num, possibleScore) }
+                    } else {
+                        value.text = "-"
+                        value.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+                        action.visibility = View.GONE
+                    }
                 }
                 else -> {
                     value.text = "-"
@@ -261,7 +279,7 @@ class MainActivity : AppCompatActivity() {
             numbersContainer.addView(item)
         }
 
-        // Combinations section
+        // Combinations section (показываем всегда, но активны только во 2-й фазе)
         val combos = listOf(
             "pair" to "Пара (+10 + сумма)",
             "twoPairs" to "Две пары (+20 + сумма)",
@@ -316,6 +334,12 @@ class MainActivity : AppCompatActivity() {
 
             combinationsContainer.addView(item)
         }
+    }
+
+    // Проверяем, можно ли записать эту цифру (только если собрали 3+ или это последний бросок)
+    private fun canRecordNumber(number: Int): Boolean {
+        val count = diceValues.count { it == number }
+        return count >= 3 || rollCount >= 3
     }
 
     private fun calculateNumberScore(number: Int): Int {
@@ -391,7 +415,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkAvailableScores() {
         if (rollCount >= 3) {
             val hasAvailable = if (isPhase1) {
-                (1..6).any { numberScores[it] == null && calculateNumberScore(it) != null }
+                (1..6).any { numberScores[it] == null && canRecordNumber(it) && calculateNumberScore(it) != null }
             } else {
                 combinationScores.keys.any { combinationScores[it] == null && calculateCombinationScore(it) != null }
             }
