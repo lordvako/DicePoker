@@ -94,7 +94,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -103,7 +103,7 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp"
                 android:layout_gravity="center"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="12dp"/>
 
             <LinearLayout
                 android:id="@+id/diceContainer"
@@ -111,89 +111,94 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="20dp">
 
                 <FrameLayout
                     android:id="@+id/dice1"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_margin="4dp"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_margin="6dp"
                     android:background="@drawable/bg_dice"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:elevation="4dp">
 
                     <ImageView
                         android:id="@+id/ivDice1"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
                         android:layout_gravity="center"
                         android:src="@drawable/dice_1"/>
                 </FrameLayout>
 
                 <FrameLayout
                     android:id="@+id/dice2"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_margin="4dp"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_margin="6dp"
                     android:background="@drawable/bg_dice"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:elevation="4dp">
 
                     <ImageView
                         android:id="@+id/ivDice2"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
                         android:layout_gravity="center"
                         android:src="@drawable/dice_1"/>
                 </FrameLayout>
 
                 <FrameLayout
                     android:id="@+id/dice3"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_margin="4dp"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_margin="6dp"
                     android:background="@drawable/bg_dice"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:elevation="4dp">
 
                     <ImageView
                         android:id="@+id/ivDice3"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
                         android:layout_gravity="center"
                         android:src="@drawable/dice_1"/>
                 </FrameLayout>
 
                 <FrameLayout
                     android:id="@+id/dice4"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_margin="4dp"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_margin="6dp"
                     android:background="@drawable/bg_dice"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:elevation="4dp">
 
                     <ImageView
                         android:id="@+id/ivDice4"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
                         android:layout_gravity="center"
                         android:src="@drawable/dice_1"/>
                 </FrameLayout>
 
                 <FrameLayout
                     android:id="@+id/dice5"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_margin="4dp"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_margin="6dp"
                     android:background="@drawable/bg_dice"
                     android:clickable="true"
-                    android:focusable="true">
+                    android:focusable="true"
+                    android:elevation="4dp">
 
                     <ImageView
                         android:id="@+id/ivDice5"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
                         android:layout_gravity="center"
                         android:src="@drawable/dice_1"/>
                 </FrameLayout>
