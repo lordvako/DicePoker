@@ -1,6 +1,7 @@
 package com.example.dicepoker
 
 import android.animation.ObjectAnimator
+import android.animation.AnimatorSet
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -15,7 +16,6 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
-    // Game State
     private var diceValues = intArrayOf(1, 1, 1, 1, 1)
     private var diceLocked = booleanArrayOf(false, false, false, false, false)
     private var diceSelected = booleanArrayOf(false, false, false, false, false)
@@ -26,11 +26,8 @@ class MainActivity : AppCompatActivity() {
     private var isSaloRound = false
     private var gameOver = false
 
-    // Number scores: null = not played, -1 = crossed (no penalty), >=0 = score
     private var numberScores = mutableMapOf<Int, Int?>(1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null)
-    // Number locked status: true = already closed (cross or score), for bonus tracking
     private var numberClosed = mutableMapOf<Int, Boolean>(1 to false, 2 to false, 3 to false, 4 to false, 5 to false, 6 to false)
-    // Number bonus tracking: additional points after closing
     private var numberBonus = mutableMapOf<Int, Int>(1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
 
     private var combinationScores = mutableMapOf<String, Int?>(
@@ -93,36 +90,75 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupHelpButton() {
-        btnHelp.setOnClickListener {
-            showHelpDialog()
-        }
+        btnHelp.setOnClickListener { showHelpDialog() }
     }
 
     private fun showHelpDialog() {
         val message = """
             ПРАВИЛА ИГРЫ "ПОКЕР КУБИК"
 
-            ФАЗА 1 — ЦИФРЫ (3 хода):
-            • Кидаешь 5 кубиков (3 броска на ход)
-            • Выбираешь кубики для сохранения (тап по кубику)
-            • Цель: собрать 3+ одинаковых цифр
-            • Если собрал 3+ → крестик + очки (количество × номинал)
-            • Если не собрал → минус номинал (-1, -2, -3...)
-            • Если цифра уже закрыта, но выпадает снова → бонус +номинал
-            • Бонус +100 если все 6 цифр в плюсе
+            Игра состоит из двух этапов.
 
-            ФАЗА 2 — КОМБИНАЦИИ (7 ходов):
-            • Пара (+10 + сумма)
-            • Две пары (+20 + сумма)
-            • 3+2 (+30 + сумма)
-            • Малый стрит 1-5 (+40)
-            • Большой стрит 2-6 (+60)
-            • Каре (+80 + сумма, x2 если с 1-го броска)
-            • Покер (+100 + сумма, x2 если с 1-го броска)
-            • Не собрал → зачёркиваешь (без штрафа)
+            ═══════════════════════════════════════
+            ЭТАП 1 — ЦИФРЫ (3 хода)
+            ═══════════════════════════════════════
 
-            САЛО — Финальный бросок:
-            • 1 бросок, любая комбинация = очки
+            Цель: собрать 3+ кубика одного достоинства.
+            На каждый ход даётся 3 броска.
+
+            После 1-го броска выбираешь кубики для сохранения
+            (тап по кубику). Остальные перебрасываешь.
+
+            Можно менять задуманную комбинацию между бросками!
+            Разрешается бросать и ранее отложенные кубики.
+
+            Результат после 3 бросков:
+            • 3+ одинаковых → крестик (закрыто) + очки
+              Очки = количество кубиков × достоинство
+              Пример: 4,4,4,2,5 → три четвёрки → +12
+            • Меньше 3 → минус номинал
+              Пример: две четвёрки → -4
+
+            Если цифра уже закрыта, но выпадает снова —
+            бонус +номинал за каждый лишний кубик!
+
+            БОНУС +100 очков, если сумма всех цифр ≥ 0!
+
+            ═══════════════════════════════════════
+            ЭТАП 2 — КОМБИНАЦИИ (7 ходов)
+            ═══════════════════════════════════════
+
+            Пара — 2 одинаковых
+              +10 + сумма кубиков пары
+
+            Две пары — 2+2 одинаковых
+              +20 + сумма обеих пар
+
+            3+2 (Фулл хаус) — тройка + пара
+              +30 + сумма всех 5 кубиков
+
+            Малый стрит — 1,2,3,4,5
+              +40 + сумма всех кубиков
+
+            Большой стрит — 2,3,4,5,6
+              +60 + сумма всех кубиков
+
+            Каре — 4 одинаковых
+              +80 + сумма 4 кубиков
+              ×2 если собрано с 1-го броска!
+
+            Покер — 5 одинаковых
+              +100 + сумма 5 кубиков
+              ×2 если собрано с 1-го броска!
+
+            Не собрал комбинацию → зачёркиваешь (без штрафа)
+
+            ═══════════════════════════════════════
+            САЛО — Финальный бросок
+            ═══════════════════════════════════════
+
+            1 бросок. Любая комбинация = очки!
+            Очки складываются из бонуса комбинации + сумма кубиков.
 
             УДАЧИ! 🎲
         """.trimIndent()
@@ -275,12 +311,10 @@ class MainActivity : AppCompatActivity() {
         val redColor = ContextCompat.getColor(this, R.color.accent_red)
         val goldColor = ContextCompat.getColor(this, R.color.accent_gold)
         val grayColor = ContextCompat.getColor(this, R.color.text_secondary)
-        val cyanColor = ContextCompat.getColor(this, R.color.accent_cyan)
         val crossBg = Color.parseColor("#3A1B1B")
         val filledBg = Color.parseColor("#0D3320")
         val bonusBg = Color.parseColor("#1A3A0D")
 
-        // Numbers section
         for (num in 1..6) {
             val item = layoutInflater.inflate(R.layout.item_score, numbersContainer, false)
             val card = item.findViewById<CardView>(R.id.cardScore)
@@ -297,17 +331,14 @@ class MainActivity : AppCompatActivity() {
             when {
                 currentScore != null -> {
                     if (currentScore < 0) {
-                        // Crossed out
                         value.text = "✕"
                         value.setTextColor(redColor)
                         card.setCardBackgroundColor(crossBg)
                     } else if (bonus > 0) {
-                        // Closed with bonus
                         value.text = "+$currentScore (+$bonus)"
                         value.setTextColor(goldColor)
                         card.setCardBackgroundColor(bonusBg)
                     } else {
-                        // Just closed
                         value.text = "+$currentScore"
                         value.setTextColor(greenColor)
                         card.setCardBackgroundColor(filledBg)
@@ -334,7 +365,6 @@ class MainActivity : AppCompatActivity() {
             numbersContainer.addView(item)
         }
 
-        // Combinations section
         val combos = listOf(
             "pair" to "Пара (+10 + сумма)",
             "twoPairs" to "Две пары (+20 + сумма)",
@@ -435,17 +465,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun recordNumberScore(number: Int, score: Int) {
         if (score < 0) {
-            // Cross out — no penalty
             numberScores[number] = -1
             numberClosed[number] = true
         } else {
-            // Record score
             if (numberClosed[number] == true) {
-                // Already closed — add bonus
                 numberBonus[number] = (numberBonus[number] ?: 0) + score
                 totalScore += score
             } else {
-                // First time closing
                 numberScores[number] = score
                 numberClosed[number] = true
                 totalScore += score
