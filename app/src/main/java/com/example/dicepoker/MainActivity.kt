@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.view.animation.BounceInterpolator
+import android.view.animation.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
+    // Game State
     private var diceValues = intArrayOf(1, 1, 1, 1, 1)
     private var diceLocked = booleanArrayOf(false, false, false, false, false)
     private var diceSelected = booleanArrayOf(false, false, false, false, false)
@@ -25,22 +26,24 @@ class MainActivity : AppCompatActivity() {
     private var isSaloRound = false
     private var gameOver = false
 
+    // Number scores: null = not played, -1 = crossed (no penalty), >=0 = score
     private var numberScores = mutableMapOf<Int, Int?>(1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null)
+    // Number locked status: true = already closed (cross or score), for bonus tracking
+    private var numberClosed = mutableMapOf<Int, Boolean>(1 to false, 2 to false, 3 to false, 4 to false, 5 to false, 6 to false)
+    // Number bonus tracking: additional points after closing
+    private var numberBonus = mutableMapOf<Int, Int>(1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
 
     private var combinationScores = mutableMapOf<String, Int?>(
-        "pair" to null,
-        "twoPairs" to null,
-        "threeTwo" to null,
-        "smallStraight" to null,
-        "bigStraight" to null,
-        "fourOfAKind" to null,
-        "poker" to null
+        "pair" to null, "twoPairs" to null, "threeTwo" to null,
+        "smallStraight" to null, "bigStraight" to null,
+        "fourOfAKind" to null, "poker" to null
     )
 
     private lateinit var diceFrames: Array<FrameLayout>
     private lateinit var diceImages: Array<ImageView>
     private lateinit var btnRoll: Button
     private lateinit var btnRestart: Button
+    private lateinit var btnHelp: Button
     private lateinit var tvRound: TextView
     private lateinit var tvRollCount: TextView
     private lateinit var tvTotalScore: TextView
@@ -51,12 +54,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnNewGame: Button
 
     private val diceDrawables = mapOf(
-        1 to R.drawable.dice_1,
-        2 to R.drawable.dice_2,
-        3 to R.drawable.dice_3,
-        4 to R.drawable.dice_4,
-        5 to R.drawable.dice_5,
-        6 to R.drawable.dice_6
+        1 to R.drawable.dice_1, 2 to R.drawable.dice_2, 3 to R.drawable.dice_3,
+        4 to R.drawable.dice_4, 5 to R.drawable.dice_5, 6 to R.drawable.dice_6
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         setupDiceClickListeners()
         setupRollButton()
         setupRestartButton()
+        setupHelpButton()
         updateUI()
     }
 
@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity() {
         )
         btnRoll = findViewById(R.id.btnRoll)
         btnRestart = findViewById(R.id.btnRestart)
+        btnHelp = findViewById(R.id.btnHelp)
         tvRound = findViewById(R.id.tvRound)
         tvRollCount = findViewById(R.id.tvRollCount)
         tvTotalScore = findViewById(R.id.tvTotalScore)
@@ -89,6 +90,48 @@ class MainActivity : AppCompatActivity() {
         combinationsContainer = findViewById(R.id.combinationsContainer)
         btnNewGame = findViewById(R.id.btnNewGame)
         btnNewGame.setOnClickListener { startNewGame() }
+    }
+
+    private fun setupHelpButton() {
+        btnHelp.setOnClickListener {
+            showHelpDialog()
+        }
+    }
+
+    private fun showHelpDialog() {
+        val message = """
+            ПРАВИЛА ИГРЫ "ПОКЕР КУБИК"
+
+            ФАЗА 1 — ЦИФРЫ (3 хода):
+            • Кидаешь 5 кубиков (3 броска на ход)
+            • Выбираешь кубики для сохранения (тап по кубику)
+            • Цель: собрать 3+ одинаковых цифр
+            • Если собрал 3+ → крестик + очки (количество × номинал)
+            • Если не собрал → минус номинал (-1, -2, -3...)
+            • Если цифра уже закрыта, но выпадает снова → бонус +номинал
+            • Бонус +100 если все 6 цифр в плюсе
+
+            ФАЗА 2 — КОМБИНАЦИИ (7 ходов):
+            • Пара (+10 + сумма)
+            • Две пары (+20 + сумма)
+            • 3+2 (+30 + сумма)
+            • Малый стрит 1-5 (+40)
+            • Большой стрит 2-6 (+60)
+            • Каре (+80 + сумма, x2 если с 1-го броска)
+            • Покер (+100 + сумма, x2 если с 1-го броска)
+            • Не собрал → зачёркиваешь (без штрафа)
+
+            САЛО — Финальный бросок:
+            • 1 бросок, любая комбинация = очки
+
+            УДАЧИ! 🎲
+        """.trimIndent()
+
+        AlertDialog.Builder(this)
+            .setTitle("Как играть?")
+            .setMessage(message)
+            .setPositiveButton("Понятно!", null)
+            .show()
     }
 
     private fun setupRestartButton() {
@@ -186,21 +229,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun animateDiceRoll(index: Int) {
         val frame = diceFrames[index]
-        ObjectAnimator.ofFloat(frame, "rotationX", 0f, 360f).apply {
-            duration = 500; interpolator = BounceInterpolator(); start()
-        }
-        ObjectAnimator.ofFloat(frame, "rotationY", 0f, 360f).apply {
-            duration = 500; interpolator = BounceInterpolator(); start()
-        }
+        val set = AnimatorSet()
+        val rotateX = ObjectAnimator.ofFloat(frame, "rotationX", 0f, 360f)
+        val rotateY = ObjectAnimator.ofFloat(frame, "rotationY", 0f, 360f)
+        val scaleX = ObjectAnimator.ofFloat(frame, "scaleX", 1f, 1.3f, 1f)
+        val scaleY = ObjectAnimator.ofFloat(frame, "scaleY", 1f, 1.3f, 1f)
+        rotateX.duration = 400
+        rotateY.duration = 400
+        scaleX.duration = 400
+        scaleY.duration = 400
+        rotateX.interpolator = OvershootInterpolator()
+        rotateY.interpolator = OvershootInterpolator()
+        set.playTogether(rotateX, rotateY, scaleX, scaleY)
+        set.start()
     }
 
     private fun updateDiceVisuals() {
         for (i in 0..4) {
             diceImages[i].setImageResource(diceDrawables[diceValues[i]] ?: R.drawable.dice_1)
             when {
-                diceLocked[i] -> { diceFrames[i].setBackgroundResource(R.drawable.bg_dice_locked); diceFrames[i].alpha = 0.7f }
-                diceSelected[i] -> { diceFrames[i].setBackgroundResource(R.drawable.bg_dice_selected); diceFrames[i].alpha = 1.0f }
-                else -> { diceFrames[i].setBackgroundResource(R.drawable.bg_dice); diceFrames[i].alpha = 1.0f }
+                diceLocked[i] -> { diceFrames[i].setBackgroundResource(R.drawable.bg_dice_locked_modern); diceFrames[i].alpha = 0.8f }
+                diceSelected[i] -> { diceFrames[i].setBackgroundResource(R.drawable.bg_dice_selected_modern); diceFrames[i].alpha = 1.0f }
+                else -> { diceFrames[i].setBackgroundResource(R.drawable.bg_dice_modern); diceFrames[i].alpha = 1.0f }
             }
         }
     }
@@ -210,7 +260,7 @@ class MainActivity : AppCompatActivity() {
         tvRollCount.text = "Бросок: $rollCount/3"
         tvTotalScore.text = "Очки: $totalScore"
         tvPhase.text = when {
-            isSaloRound -> "САЛО - Финальный бросок!"
+            isSaloRound -> "САЛО — Финальный бросок!"
             isPhase1 -> "Фаза 1: Собери цифры"
             else -> "Фаза 2: Собери комбинации"
         }
@@ -225,9 +275,12 @@ class MainActivity : AppCompatActivity() {
         val redColor = ContextCompat.getColor(this, R.color.accent_red)
         val goldColor = ContextCompat.getColor(this, R.color.accent_gold)
         val grayColor = ContextCompat.getColor(this, R.color.text_secondary)
+        val cyanColor = ContextCompat.getColor(this, R.color.accent_cyan)
         val crossBg = Color.parseColor("#3A1B1B")
-        val filledBg = Color.parseColor("#1B3A2F")
+        val filledBg = Color.parseColor("#0D3320")
+        val bonusBg = Color.parseColor("#1A3A0D")
 
+        // Numbers section
         for (num in 1..6) {
             val item = layoutInflater.inflate(R.layout.item_score, numbersContainer, false)
             val card = item.findViewById<CardView>(R.id.cardScore)
@@ -238,13 +291,23 @@ class MainActivity : AppCompatActivity() {
             name.text = "$num${when(num) { 1->" (единицы)"; 2->" (двойки)"; 3->" (тройки)"; 4->" (четвёрки)"; 5->" (пятёрки)"; else->" (шестёрки)" }}"
 
             val currentScore = numberScores[num]
+            val isClosed = numberClosed[num] == true
+            val bonus = numberBonus[num] ?: 0
+
             when {
                 currentScore != null -> {
-                    if (currentScore == -1) {
+                    if (currentScore < 0) {
+                        // Crossed out
                         value.text = "✕"
                         value.setTextColor(redColor)
                         card.setCardBackgroundColor(crossBg)
+                    } else if (bonus > 0) {
+                        // Closed with bonus
+                        value.text = "+$currentScore (+$bonus)"
+                        value.setTextColor(goldColor)
+                        card.setCardBackgroundColor(bonusBg)
                     } else {
+                        // Just closed
                         value.text = "+$currentScore"
                         value.setTextColor(greenColor)
                         card.setCardBackgroundColor(filledBg)
@@ -252,11 +315,14 @@ class MainActivity : AppCompatActivity() {
                     action.visibility = View.GONE
                 }
                 rollCount > 0 && !gameOver && isPhase1 -> {
-                    val possibleScore = calculateNumberScore(num)
+                    val count = diceValues.count { it == num }
+                    val possibleScore = if (count >= 3) count * num else -num
+
                     value.text = if (possibleScore >= 0) "+$possibleScore" else "-$num"
-                    value.setTextColor(goldColor)
+                    value.setTextColor(if (possibleScore >= 0) goldColor else redColor)
                     action.visibility = View.VISIBLE
-                    action.text = "ЗАПИСАТЬ"
+                    action.text = if (possibleScore >= 0) "ЗАПИСАТЬ" else "ЗАЧЁРКНУТЬ"
+                    action.setTextColor(if (possibleScore >= 0) goldColor else redColor)
                     card.setOnClickListener { recordNumberScore(num, possibleScore) }
                 }
                 else -> {
@@ -268,6 +334,7 @@ class MainActivity : AppCompatActivity() {
             numbersContainer.addView(item)
         }
 
+        // Combinations section
         val combos = listOf(
             "pair" to "Пара (+10 + сумма)",
             "twoPairs" to "Две пары (+20 + сумма)",
@@ -322,11 +389,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun calculateNumberScore(number: Int): Int {
-        val count = diceValues.count { it == number }
-        return if (count >= 3) count * number else -number
-    }
-
     private fun calculateCombinationScore(key: String): Int? {
         val sorted = diceValues.toList().sorted()
         val counts = diceValues.groupBy { it }.mapValues { it.value.size }
@@ -373,10 +435,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun recordNumberScore(number: Int, score: Int) {
         if (score < 0) {
+            // Cross out — no penalty
             numberScores[number] = -1
+            numberClosed[number] = true
         } else {
-            numberScores[number] = score
-            totalScore += score
+            // Record score
+            if (numberClosed[number] == true) {
+                // Already closed — add bonus
+                numberBonus[number] = (numberBonus[number] ?: 0) + score
+                totalScore += score
+            } else {
+                // First time closing
+                numberScores[number] = score
+                numberClosed[number] = true
+                totalScore += score
+            }
         }
         nextRound()
     }
@@ -396,50 +469,6 @@ class MainActivity : AppCompatActivity() {
             }
             if (!hasAvailable) {
                 tvMessage.text = "Нет доступных категорий!"
-            } else {
-                enableCrossOutMode()
-            }
-        }
-    }
-
-    private fun enableCrossOutMode() {
-        val redColor = ContextCompat.getColor(this, R.color.accent_red)
-        if (isPhase1) {
-            for (num in 1..6) {
-                if (numberScores[num] == null) {
-                    val index = num - 1
-                    if (index < numbersContainer.childCount) {
-                        val item = numbersContainer.getChildAt(index)
-                        val card = item.findViewById<CardView>(R.id.cardScore)
-                        val action = item.findViewById<TextView>(R.id.tvScoreAction)
-                        action.text = "ЗАЧЁРКНУТЬ"
-                        action.setTextColor(redColor)
-                        action.visibility = View.VISIBLE
-                        card.setOnClickListener {
-                            numberScores[num] = -1
-                            nextRound()
-                        }
-                    }
-                }
-            }
-        } else {
-            val comboKeys = listOf("pair", "twoPairs", "threeTwo", "smallStraight", "bigStraight", "fourOfAKind", "poker")
-            for (key in comboKeys) {
-                if (combinationScores[key] == null) {
-                    val index = comboKeys.indexOf(key)
-                    if (index < combinationsContainer.childCount) {
-                        val item = combinationsContainer.getChildAt(index)
-                        val card = item.findViewById<CardView>(R.id.cardScore)
-                        val action = item.findViewById<TextView>(R.id.tvScoreAction)
-                        action.text = "ЗАЧЁРКНУТЬ"
-                        action.setTextColor(redColor)
-                        action.visibility = View.VISIBLE
-                        card.setOnClickListener {
-                            combinationScores[key] = -1
-                            nextRound()
-                        }
-                    }
-                }
             }
         }
     }
@@ -506,6 +535,8 @@ class MainActivity : AppCompatActivity() {
         isSaloRound = false
         gameOver = false
         numberScores = mutableMapOf(1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null)
+        numberClosed = mutableMapOf(1 to false, 2 to false, 3 to false, 4 to false, 5 to false, 6 to false)
+        numberBonus = mutableMapOf(1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
         combinationScores = mutableMapOf(
             "pair" to null, "twoPairs" to null, "threeTwo" to null,
             "smallStraight" to null, "bigStraight" to null,
