@@ -8,15 +8,27 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="bg_dark">#1A1A2E</color>
-    <color name="bg_card">#16213E</color>
+    <!-- Game Colors -->
+    <color name="bg_dark">#0D0D1A</color>
+    <color name="bg_card">#1A1A3E</color>
+    <color name="bg_card_gradient_start">#1E1E4B</color>
+    <color name="bg_card_gradient_end">#141432</color>
     <color name="accent_gold">#FFD700</color>
-    <color name="accent_red">#E94560</color>
-    <color name="accent_green">#4CAF50</color>
-    <color name="accent_blue">#2196F3</color>
+    <color name="accent_gold_light">#FFE55C</color>
+    <color name="accent_red">#FF4757</color>
+    <color name="accent_green">#2ED573</color>
+    <color name="accent_blue">#3742FA</color>
+    <color name="accent_purple">#A55EEA</color>
+    <color name="accent_orange">#FF6348</color>
+    <color name="accent_cyan">#00D2D3</color>
     <color name="dice_bg">#0F3460</color>
-    <color name="text_primary">#EAEAEA</color>
-    <color name="text_secondary">#A0A0A0</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#A0A0C0</color>
+    <color name="text_gold">#FFD700</color>
     <color name="selected_dice">#FFD700</color>
-    <color name="locked_dice">#4CAF50</color>
+    <color name="locked_dice">#2ED573</color>
+    <color name="btn_primary_start">#FFD700</color>
+    <color name="btn_primary_end">#FF8C00</color>
+    <color name="btn_secondary">#3742FA</color>
+    <color name="btn_danger">#FF4757</color>
 </resources>
