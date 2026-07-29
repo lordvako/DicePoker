@@ -4,7 +4,7 @@
     android:id="@+id/cardScore"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="12dp"
+    app:cardCornerRadius="14dp"
     app:cardBackgroundColor="#1A1A3E"
     app:cardElevation="4dp"
     android:layout_marginBottom="8dp">
@@ -15,18 +15,34 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp">
+        android:paddingRight="12dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
 
-        <TextView
-            android:id="@+id/tvScoreTitle"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="1 (единицы)"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvScoreTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Единицы"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvScoreDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Сумма всех единиц"
+                android:textColor="#888888"
+                android:textSize="11sp"
+                android:layout_marginTop="1dp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvScoreValue"
@@ -34,18 +50,21 @@
             android:layout_height="wrap_content"
             android:text=""
             android:textColor="#FFD700"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginEnd="12dp" />
+            android:minWidth="48dp"
+            android:gravity="center"
+            android:layout_marginEnd="10dp" />
 
         <Button
             android:id="@+id/btnScoreAction"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="ЗАЧЁРКНУТЬ"
-            android:textSize="12sp"
-            android:textColor="#FF6B6B"
-            android:background="@drawable/bg_button_secondary"
+            android:layout_height="38dp"
+            android:text="ЗАПИСАТЬ"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textColor="#00C853"
+            android:background="@drawable/bg_button_small"
             android:visibility="gone" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
