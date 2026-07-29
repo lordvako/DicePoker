@@ -1,390 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_dark">
+    android:fillViewport="true"
+    android:background="#0F0F23">
 
-    <!-- Header -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/headerCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_header_gradient"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="ПОКЕР КУБИК"
-                    android:textColor="@color/accent_gold"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:shadowColor="#FF8C00"
-                    android:shadowDx="2"
-                    android:shadowDy="2"
-                    android:shadowRadius="4"/>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btnHelp"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:text="?"
-                        android:textSize="18sp"
-                        android:textColor="@color/white"
-                        android:background="@drawable/bg_button_secondary"
-                        android:layout_marginEnd="8dp"/>
-
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/btnRestart"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:text="&#x21bb;"
-                        android:textSize="20sp"
-                        android:textColor="@color/white"
-                        android:background="@drawable/bg_button_secondary"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:gravity="center">
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#0F0F2E"
-                    app:cardCornerRadius="20dp"
-                    android:layout_marginEnd="8dp">
-
-                    <TextView
-                        android:id="@+id/tvRound"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Раунд: 1/13"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:paddingLeft="12dp"
-                        android:paddingRight="12dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"/>
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#0F0F2E"
-                    app:cardCornerRadius="20dp"
-                    android:layout_marginEnd="8dp">
-
-                    <TextView
-                        android:id="@+id/tvRollCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Бросок: 1/3"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:paddingLeft="12dp"
-                        android:paddingRight="12dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"/>
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#0F0F2E"
-                    app:cardCornerRadius="20dp">
-
-                    <TextView
-                        android:id="@+id/tvTotalScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Очки: 0"
-                        android:textColor="@color/accent_gold"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:paddingLeft="12dp"
-                        android:paddingRight="12dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"/>
-                </androidx.cardview.widget.CardView>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvPhase"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Фаза 1: Собери цифры"
-                android:textColor="@color/accent_cyan"
-                android:textSize="13sp"
-                android:layout_gravity="center"
-                android:layout_marginTop="6dp"
-                android:textStyle="bold"/>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Dice Area -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/diceCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginTop="8dp"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="6dp"
-        app:layout_constraintTop_toBottomOf="@id/headerCard">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_card_modern"
-            android:orientation="vertical"
-            android:padding="10dp"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Нажми на кубик, чтобы сохранить"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp"
-                android:layout_marginBottom="8dp"/>
-
-            <!-- Row 1: 3 dice -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
-
-                <FrameLayout
-                    android:id="@+id/dice1"
-                    android:layout_width="58dp"
-                    android:layout_height="58dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_dice_modern"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:elevation="4dp">
-
-                    <ImageView
-                        android:id="@+id/ivDice1"
-                        android:layout_width="46dp"
-                        android:layout_height="46dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/dice_1"/>
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/dice2"
-                    android:layout_width="58dp"
-                    android:layout_height="58dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_dice_modern"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:elevation="4dp">
-
-                    <ImageView
-                        android:id="@+id/ivDice2"
-                        android:layout_width="46dp"
-                        android:layout_height="46dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/dice_1"/>
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/dice3"
-                    android:layout_width="58dp"
-                    android:layout_height="58dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_dice_modern"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:elevation="4dp">
-
-                    <ImageView
-                        android:id="@+id/ivDice3"
-                        android:layout_width="46dp"
-                        android:layout_height="46dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/dice_1"/>
-                </FrameLayout>
-            </LinearLayout>
-
-            <!-- Row 2: 2 dice -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="6dp">
-
-                <FrameLayout
-                    android:id="@+id/dice4"
-                    android:layout_width="58dp"
-                    android:layout_height="58dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_dice_modern"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:elevation="4dp">
-
-                    <ImageView
-                        android:id="@+id/ivDice4"
-                        android:layout_width="46dp"
-                        android:layout_height="46dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/dice_1"/>
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/dice5"
-                    android:layout_width="58dp"
-                    android:layout_height="58dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_dice_modern"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:elevation="4dp">
-
-                    <ImageView
-                        android:id="@+id/ivDice5"
-                        android:layout_width="46dp"
-                        android:layout_height="46dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/dice_1"/>
-                </FrameLayout>
-            </LinearLayout>
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnRoll"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="12dp"
-                android:text="БРОСИТЬ КУБИКИ"
-                android:textSize="17sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:background="@drawable/bg_button_primary"
-                android:layout_gravity="center"
-                android:elevation="6dp"/>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Score Table -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="10dp"
-        app:layout_constraintTop_toBottomOf="@id/diceCard"
-        app:layout_constraintBottom_toTopOf="@id/bottomPanel">
-
-        <LinearLayout
-            android:id="@+id/scoreContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ЦИФРЫ"
-                android:textColor="@color/accent_cyan"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                android:shadowColor="#00D2D3"
-                android:shadowDx="1"
-                android:shadowDy="1"
-                android:shadowRadius="2"/>
-
-            <LinearLayout
-                android:id="@+id/numbersContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="КОМБИНАЦИИ"
-                android:textColor="@color/accent_gold"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="8dp"
-                android:shadowColor="#FFD700"
-                android:shadowDx="1"
-                android:shadowDy="1"
-                android:shadowRadius="2"/>
-
-            <LinearLayout
-                android:id="@+id/combinationsContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- Bottom Panel -->
     <LinearLayout
-        android:id="@+id/bottomPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_header_gradient"
-        android:padding="12dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:padding="16dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ПОКЕР КУБИК"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#FFD700"
+                android:gravity="center" />
+
+            <ImageButton
+                android:id="@+id/btnHelp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_menu_help"
+                android:background="@drawable/bg_button_secondary"
+                android:contentDescription="Помощь" />
+
+            <ImageButton
+                android:id="@+id/btnRestart"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:src="@android:drawable/ic_menu_rotate"
+                android:background="@drawable/bg_button_secondary"
+                android:contentDescription="Заново" />
+        </LinearLayout>
+
+        <!-- Stats -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvRound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Раунд: 1/11"
+                android:textColor="#AAAAAA"
+                android:textSize="14sp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:background="@drawable/bg_card_modern" />
+
+            <TextView
+                android:id="@+id/tvRoll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="Бросок: 0/3"
+                android:textColor="#AAAAAA"
+                android:textSize="14sp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:background="@drawable/bg_card_modern" />
+
+            <TextView
+                android:id="@+id/tvScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="Очки: 0"
+                android:textColor="#FFD700"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:background="@drawable/bg_card_modern" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/tvMessage"
+            android:id="@+id/tvPhase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Нажми БРОСИТЬ КУБИКИ чтобы начать!"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
             android:layout_gravity="center"
-            android:layout_marginBottom="8dp"/>
+            android:text="Фаза 1: Собери цифры"
+            android:textColor="#00E5FF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnNewGame"
+        <!-- Dice Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:text="НОВАЯ ИГРА"
-            android:textSize="14sp"
-            android:textColor="@color/white"
-            android:background="@drawable/bg_button_secondary"
-            android:visibility="gone"/>
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardBackgroundColor="#1A1A3E"
+            app:cardElevation="8dp"
+            android:layout_marginBottom="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Нажми БРОСИТЬ КУБИКИ"
+                    android:textColor="#CCCCCC"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:id="@+id/diceContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp" />
+
+                <Button
+                    android:id="@+id/btnRoll"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="БРОСИТЬ КУБИКИ"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A3E"
+                    android:background="@drawable/bg_button_primary" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Numbers Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ЦИФРЫ"
+            android:textColor="#00E5FF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:id="@+id/numbersContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Combos Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="КОМБИНАЦИИ"
+            android:textColor="#00E5FF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:id="@+id/combosContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>
