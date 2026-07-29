@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#0F0F23">
+    android:background="#0A0A1A">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <!-- Header -->
         <LinearLayout
@@ -23,101 +23,142 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="ПОКЕР КУБИК"
-                android:textSize="28sp"
+                android:text="ПОКЕР НА КОСТЯХ"
+                android:textSize="26sp"
                 android:textStyle="bold"
                 android:textColor="#FFD700"
-                android:gravity="center" />
+                android:gravity="center"
+                android:shadowColor="#FF8C00"
+                android:shadowRadius="8"
+                android:shadowDx="0"
+                android:shadowDy="2" />
 
             <ImageButton
                 android:id="@+id/btnHelp"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:src="@android:drawable/ic_menu_help"
-                android:background="@drawable/bg_button_secondary"
-                android:contentDescription="Помощь" />
+                android:background="@drawable/bg_circle_button"
+                android:tint="#FFD700"
+                android:contentDescription="Правила" />
 
             <ImageButton
                 android:id="@+id/btnRestart"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="10dp"
                 android:src="@android:drawable/ic_menu_rotate"
-                android:background="@drawable/bg_button_secondary"
+                android:background="@drawable/bg_circle_button"
+                android:tint="#FFD700"
                 android:contentDescription="Заново" />
         </LinearLayout>
 
-        <!-- Stats -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:id="@+id/tvRound"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Раунд: 1/11"
-                android:textColor="#AAAAAA"
-                android:textSize="14sp"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:background="@drawable/bg_card_modern" />
-
-            <TextView
-                android:id="@+id/tvRoll"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="Бросок: 0/3"
-                android:textColor="#AAAAAA"
-                android:textSize="14sp"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:background="@drawable/bg_card_modern" />
-
-            <TextView
-                android:id="@+id/tvScore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="Очки: 0"
-                android:textColor="#FFD700"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:background="@drawable/bg_card_modern" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvPhase"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Фаза 1: Собери цифры"
-            android:textColor="#00E5FF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Dice Card -->
+        <!-- Stats Bar -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
-            app:cardBackgroundColor="#1A1A3E"
+            app:cardBackgroundColor="#12122E"
+            app:cardElevation="6dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:padding="10dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/tvRound"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Раунд: 1/15"
+                        android:textColor="#AAAAAA"
+                        android:textSize="13sp" />
+                    <TextView
+                        android:id="@+id/tvRoll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Бросок: 0/3"
+                        android:textColor="#888888"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="36dp"
+                    android:background="#2A2A5A" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/tvUpperScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Верх: 0/63"
+                        android:textColor="#AAAAAA"
+                        android:textSize="13sp" />
+                    <TextView
+                        android:id="@+id/tvBonus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Бонус: 0"
+                        android:textColor="#888888"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="36dp"
+                    android:background="#2A2A5A" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ИТОГО"
+                        android:textColor="#FFD700"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvTotalScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="#FFD700"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Dice Area -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="#12122E"
             app:cardElevation="8dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -130,10 +171,10 @@
                     android:id="@+id/tvHint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Нажми БРОСИТЬ КУБИКИ"
+                    android:text="Раунд 1. Нажми БРОСИТЬ КУБИКИ"
                     android:textColor="#CCCCCC"
                     android:textSize="14sp"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="14dp" />
 
                 <LinearLayout
                     android:id="@+id/diceContainer"
@@ -146,48 +187,22 @@
                 <Button
                     android:id="@+id/btnRoll"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="54dp"
                     android:text="БРОСИТЬ КУБИКИ"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="#1A1A3E"
-                    android:background="@drawable/bg_button_primary" />
+                    android:background="@drawable/bg_button_primary"
+                    android:elevation="4dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Numbers Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ЦИФРЫ"
-            android:textColor="#00E5FF"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
+        <!-- Scores Table -->
         <LinearLayout
-            android:id="@+id/numbersContainer"
+            android:id="@+id/scoresContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Combos Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="КОМБИНАЦИИ"
-            android:textColor="#00E5FF"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <LinearLayout
-            android:id="@+id/combosContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone" />
+            android:orientation="vertical" />
 
     </LinearLayout>
 </ScrollView>
