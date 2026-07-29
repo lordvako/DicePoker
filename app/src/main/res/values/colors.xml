@@ -7,8 +7,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-    <!-- Недостающие цвета для старых drawable -->
     <color name="dice_bg">#2A2A5A</color>
     <color name="accent_green">#00C853</color>
     <color name="accent_gold">#FFD700</color>
