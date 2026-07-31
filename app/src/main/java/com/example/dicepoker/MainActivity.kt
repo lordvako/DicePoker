@@ -10,7 +10,6 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.core.animation.doOnEnd
 
 class MainActivity : AppCompatActivity() {
 
@@ -92,9 +91,9 @@ class MainActivity : AppCompatActivity() {
         diceContainer.removeAllViews()
         for (i in 0 until 5) {
             val dice = DiceView(this).apply {
-                layoutParams = LinearLayout.LayoutParams(100, 100).apply {
-                    marginEnd = 14
-                }
+                val lp = LinearLayout.LayoutParams(100, 100)
+                lp.marginEnd = 14
+                layoutParams = lp
                 diceValue = diceValues[i]
             }
             diceViews.add(dice)
@@ -106,7 +105,6 @@ class MainActivity : AppCompatActivity() {
         scoresContainer.removeAllViews()
         cellViews.clear()
 
-        // Upper section header
         val upperHeader = TextView(this).apply {
             text = "ВЕРХНЯЯ СЕКЦИЯ"
             textSize = 14f
@@ -119,7 +117,6 @@ class MainActivity : AppCompatActivity() {
             addScoreRow(cell)
         }
 
-        // Divider
         val divider = View(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 2
@@ -128,7 +125,6 @@ class MainActivity : AppCompatActivity() {
         }
         scoresContainer.addView(divider)
 
-        // Lower section header
         val lowerHeader = TextView(this).apply {
             text = "НИЖНЯЯ СЕКЦИЯ"
             textSize = 14f
@@ -173,10 +169,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupButtons() {
         btnRoll.setOnClickListener {
             if (isGameOver) return@setOnClickListener
-            if (rollCount >= maxRolls) {
-                // Should not happen, but just in case
-                return@setOnClickListener
-            }
+            if (rollCount >= maxRolls) return@setOnClickListener
             rollDice()
         }
         btnHelp.setOnClickListener { showHelp() }
@@ -195,7 +188,6 @@ class MainActivity : AppCompatActivity() {
             dice.animateRoll()
         }
 
-        // Delay update to match animation
         diceContainer.postDelayed({
             updateDiceUI()
             updateScoresTable()
@@ -318,7 +310,6 @@ class MainActivity : AppCompatActivity() {
         val cell = scoreCells.find { it.id == cellId } ?: return
         cell.score = score
 
-        // Animate the card
         val row = cellViews[cellId]
         row?.let {
             val colorAnim = ValueAnimator.ofArgb(
@@ -336,7 +327,7 @@ class MainActivity : AppCompatActivity() {
 
         currentRound++
         rollCount = 0
-        savedDice.fill(false)
+        for (i in savedDice.indices) savedDice[i] = false
         btnRoll.isEnabled = true
         btnRoll.alpha = 1f
 
@@ -411,8 +402,8 @@ class MainActivity : AppCompatActivity() {
         currentRound = 1
         rollCount = 0
         isGameOver = false
-        savedDice.fill(false)
-        diceValues.fill(1)
+        for (i in savedDice.indices) savedDice[i] = false
+        for (i in diceValues.indices) diceValues[i] = 1
         scoreCells.forEach { it.score = null }
         btnRoll.isEnabled = true
         btnRoll.alpha = 1f
