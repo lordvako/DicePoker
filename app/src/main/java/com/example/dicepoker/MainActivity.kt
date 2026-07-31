@@ -1,4 +1,4 @@
-package com.example.dicepoker
+package lordvako.appname
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
