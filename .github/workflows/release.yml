@@ -20,15 +20,21 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
+      - name: Download Gradle
+        run: |
+          wget https://services.gradle.org/distributions/gradle-8.7-bin.zip -O gradle.zip
+          unzip -q gradle.zip
+          export PATH="$PWD/gradle-8.7/bin:$PATH"
+          gradle --version
 
       - name: Decode Keystore
         run: |
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
 
       - name: Build Release AAB
-        run: ./gradlew app:bundleRelease
+        run: |
+          export PATH="$PWD/gradle-8.7/bin:$PATH"
+          gradle app:bundleRelease
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
