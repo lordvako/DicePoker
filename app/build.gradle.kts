@@ -8,7 +8,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.dicepoker"
+        applicationId = "lordvako.appname"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
